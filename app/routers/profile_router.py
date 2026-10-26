@@ -4,6 +4,7 @@ import datetime
 from fastapi import APIRouter, UploadFile
 
 from app.constants import APP_VERSION
+from app.models.notebooks import NotebookInformation, NotebookList
 from app.models.profiler import ProfilerFunction
 from app.models.taxonomy import TAXONOMY_BY_NAME, TaxonomyFunction
 from app.profiling_functions.factory import get_profiler
@@ -11,14 +12,14 @@ from app.profiling_functions.factory import get_profiler
 router = APIRouter()
 
 async def _profile_notebook(
-        notebook: dict,
+        notebook: NotebookInformation,
         taxonomy_name: TaxonomyFunction,
         profiler_name: ProfilerFunction,
 ):
 
-    parser_model = notebook["parser_model"]
+    parser_model = notebook.parser_model
     taxonomy = TAXONOMY_BY_NAME[taxonomy_name]
-    profiler = get_profiler(notebook["source_code"], taxonomy, profiler_name)
+    profiler = get_profiler(notebook.source_code, taxonomy, profiler_name)
     results = await profiler.profile_multiple_subgraphs(parser_model)
 
     source: list[dict] = []
@@ -38,14 +39,14 @@ async def _profile_notebook(
             step = {"name": profiler_result.step, "tasks": [element], "outputs_ids": []}
             source.append(step)
     return {
-        "name": notebook["filename"],
+        "name": notebook.name,
         "metadata": {
             "version": APP_VERSION,
             "generation_date": datetime.datetime.now().isoformat(),
             "session_id": profiler.session_id,
             "taxonomy": taxonomy_name,
             "profiler": profiler_name,
-            "parser": notebook["parser_function"],
+            "parser": notebook.parser_function,
         },
         "source": source,
         "outputs": {},
@@ -54,7 +55,7 @@ async def _profile_notebook(
 
 @router.post("")
 async def profile(
-        list_of_notebooks: list[dict],
+        list_of_notebooks: NotebookList,
         taxonomy: TaxonomyFunction,
         profiler: ProfilerFunction,
 ):
@@ -62,6 +63,6 @@ async def profile(
     Endpoint to get files' profiles according to their FAST model representation and given a profiler and a taxonomy
     """
     profiles = await asyncio.gather(
-        *[_profile_notebook(notebook, taxonomy, profiler) for notebook in list_of_notebooks]
+        *[_profile_notebook(notebook, taxonomy, profiler) for notebook in list_of_notebooks.data]
     )
     return profiles
