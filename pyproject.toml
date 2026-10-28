@@ -1,6 +1,7 @@
 [dependency-groups]
 dev = [
     "pre-commit>=3.7",
+    "pyright>=1.1.414",
     "types-ujson>=5.10.0.20250822",
 ]
 
@@ -26,6 +27,11 @@ name = "mlprofiler"
 readme = "README.md"
 requires-python = ">=3.12.0,<4.0"
 version = "0.3.0"
+
+[tool.pyright]
+include = ["app"]
+venvPath = "."
+venv = ".venv"
 
 [tool.uv]
 required-environments = [

@@ -33,7 +33,7 @@ class InferenceSessionSingleton:
     __INSTANCE_NAME: str = ""
 
     @classmethod
-    def get_instance(cls, instance_name: str) -> SentenceTransformer:
+    def get_instance(cls, instance_name: str) -> rt.InferenceSession:
         if cls.__INSTANCE and cls.__INSTANCE_NAME == instance_name:
             return cls.__INSTANCE
         cls.__INSTANCE_NAME = instance_name
@@ -63,7 +63,7 @@ class EmbeddingProfiler(BaseMLProfiler):
         predicted_class_id = self.session.run(
             [label_name],
             {input_name: embedded_code.reshape((1, embedded_code.shape[0]))},
-        )[0][0]
+        )[0][0]  # pyright: ignore[reportIndexIssue]
 
         retrieved_step = LABELS_NAMES[
             predicted_class_id
@@ -79,4 +79,7 @@ class EmbeddingProfiler(BaseMLProfiler):
         predicted_class_id = self.session.run(
             [label_name], {input_name: embedded_code}
         )[0]
-        return [ProfileResult(step=LABELS_NAMES[class_id], perplexity=-1) for class_id in predicted_class_id]
+        return [
+            ProfileResult(step=LABELS_NAMES[class_id], perplexity=-1)
+            for class_id in predicted_class_id  # pyright: ignore[reportGeneralTypeIssues]
+        ]

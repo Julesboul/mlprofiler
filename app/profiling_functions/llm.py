@@ -7,7 +7,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 try:
     # trying monitored by default
     from langfuse import get_client, propagate_attributes
-    from langfuse.openai import AsyncOpenAI
+    from langfuse.openai import AsyncOpenAI  # pyright: ignore[reportPrivateImportUsage]
 
     langfuse = get_client()
 except ValueError:
@@ -16,14 +16,15 @@ except ValueError:
     from openai import AsyncOpenAI
 
 
+    @contextmanager
     def propagate_attributes(*args, **kwargs):
-        ...
+        yield
 
 
     class LangfuseMock:
         @contextmanager
         def start_as_current_observation(self, *args, **kwargs):
-            ...
+            yield
 
 
     langfuse = LangfuseMock()
@@ -141,7 +142,7 @@ class LLMProfiler(BaseMLProfiler):
         """
         relevant_content_logprobs = [
             token.logprob
-            for token in completion.choices[0].logprobs.content
+            for token in completion.choices[0].logprobs.content  # pyright: ignore[reportOptionalIterable, reportOptionalMemberAccess]
             if token.token and token.token in predicted_class
         ]
 

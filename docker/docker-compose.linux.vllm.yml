@@ -22,6 +22,7 @@ services:
 networks:
   colombus-dev_network:
     external: true
+    name: colombus-dev_network
 
 volumes:
   vllm_cache_data:
