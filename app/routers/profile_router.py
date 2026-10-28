@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 
-from fastapi import APIRouter, UploadFile
+from fastapi import APIRouter
 
 from app.constants import APP_VERSION
 from app.models.notebooks import NotebookInformation, NotebookList
@@ -12,14 +12,17 @@ from app.profiling_functions.factory import get_profiler
 router = APIRouter()
 
 async def _profile_notebook(
-        notebook: NotebookInformation,
+        notebook_info: NotebookInformation,
         taxonomy_name: TaxonomyFunction,
         profiler_name: ProfilerFunction,
 ):
+    """
+        Return the profile of a notebook file (represented by the object containing all needed information) given a profiling function and a taxonomy
+    """
 
-    parser_model = notebook.parser_model
+    parser_model = notebook_info.parser_model
     taxonomy = TAXONOMY_BY_NAME[taxonomy_name]
-    profiler = get_profiler(notebook.source_code, taxonomy, profiler_name)
+    profiler = get_profiler(notebook_info.source_code, taxonomy, profiler_name)
     results = await profiler.profile_multiple_subgraphs(parser_model)
 
     source: list[dict] = []
@@ -39,14 +42,14 @@ async def _profile_notebook(
             step = {"name": profiler_result.step, "tasks": [element], "outputs_ids": []}
             source.append(step)
     return {
-        "name": notebook.name,
+        "name": notebook_info.name,
         "metadata": {
             "version": APP_VERSION,
             "generation_date": datetime.datetime.now().isoformat(),
             "session_id": profiler.session_id,
             "taxonomy": taxonomy_name,
             "profiler": profiler_name,
-            "parser": notebook.parser_function,
+            "parser": notebook_info.parser_function,
         },
         "source": source,
         "outputs": {},

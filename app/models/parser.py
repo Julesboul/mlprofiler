@@ -3,6 +3,13 @@ from enum import Enum
 from pydantic import BaseModel, TypeAdapter
 
 
+class ParserFunction(str, Enum):
+    "Available parsing function"
+
+    DSPIPELINES = "dspipelines"
+    VESPUCCI = "vespucci"
+
+
 class ParserSubgraphLine(BaseModel):
     start: int
     end: int
@@ -14,6 +21,8 @@ class ParserSubgraphCursor(BaseModel):
 
 
 class ParserSubgraph(BaseModel):
+    "Model of subgraph element return by a parser"
+
     id: str
     library: str
     function: str
