@@ -37,5 +37,5 @@ repos:
   hooks:
   - id: pytest-check
     name: pytest-check
-    entry: bash -c 'python3 -m pytest'
+    entry: bash -c 'uv run pytest'
     language: system
