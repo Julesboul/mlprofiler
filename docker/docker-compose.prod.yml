@@ -3,7 +3,8 @@ services:
     image: ghcr.io/colombus-dev/mlprofiler:latest
     restart: unless-stopped
     labels:
-      com.centurylinklabs.watchtower.enable: "true"
+      wud.watch: "true"
+      wud.watch.digest: "true"
     environment:
       VESPUCCI_PARSER_API_URL_PREFIX: http://vespucci_parser_api:1701
       VLLM_FORCE: "${VLLM_FORCE:-0}"
